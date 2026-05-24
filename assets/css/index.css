@@ -1,0 +1,38 @@
+/* index.css - Tela inicial */
+.index-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f5dc 0%, #e9e2c7 100%);
+}
+
+.index-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.index-container h1 {
+  font-size: 2.4rem;
+  margin-bottom: 2rem;
+  color: #5d3a1a;
+}
+
+.index-buttons .btn {
+  width: 80%;
+  max-width: 280px;
+  font-size: 1.4rem;
+  padding: 15px;
+  margin: 12px auto;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .index-container h1 {
+    font-size: 1.8rem;
+  }
+  .index-buttons .btn {
+    width: 90%;
+    font-size: 1.2rem;
+  }
+}

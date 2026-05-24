@@ -1,0 +1,203 @@
+/* ========== RESET E CONFIGURAÇÕES GLOBAIS ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5dc;
+  padding: 0 8px 20px 8px;
+  margin: 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 6px;
+}
+
+/* Títulos */
+h1,
+h2,
+h3,
+h4 {
+  text-align: center;
+  word-break: break-word;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-top: 1rem;
+  color: #5d3a1a;
+}
+
+h2 {
+  font-size: 1.6rem;
+  margin: 0.8rem 0;
+  color: #2c5f2d;
+}
+
+/* Botões base */
+.btn {
+  font-size: 1.2rem;
+  padding: 12px 16px;
+  border-radius: 50px;
+  transition: all 0.2s ease;
+  margin: 6px 0;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+.btn-primary:active {
+  background-color: #0062cc;
+  transform: scale(0.98);
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+.btn-success:active {
+  background-color: #1e7e34;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+.btn-warning:active {
+  background-color: #e0a800;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+.btn-danger:active {
+  background-color: #bd2130;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
+}
+.btn-info:active {
+  background-color: #138496;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.card-header {
+  background-color: #f4e4c1;
+  padding: 12px;
+  border-bottom: 1px solid #e0c8a0;
+  text-align: center;
+}
+
+.card-header h4 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #3b2a1f;
+}
+
+.card-body {
+  padding: 14px;
+}
+
+/* Listas */
+.list-group {
+  list-style: none;
+  padding: 0;
+}
+
+.list-group-item {
+  background: #fef7e6;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+  border-radius: 30px;
+  border: 1px solid #e2d0b6;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.text-decoration-line-through {
+  text-decoration: line-through;
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+/* Alertas */
+.alert {
+  padding: 10px;
+  border-radius: 16px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Responsividade base */
+@media (max-width: 480px) {
+  body {
+    padding: 0 4px 15px 4px;
+  }
+  .btn {
+    font-size: 1rem;
+    padding: 10px 12px;
+  }
+  h1 {
+    font-size: 1.7rem;
+  }
+  h2 {
+    font-size: 1.3rem;
+  }
+}
+
+.encerrado-card h3 {
+  color: #17a2b8;
+}

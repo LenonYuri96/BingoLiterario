@@ -1,0 +1,519 @@
+/* ========== IMPORTAÇÃO DE FONTE GOOGLE ========== */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+/* ========== RESET E CONFIGURAÇÕES GLOBAIS ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(145deg, #f8f3e6 0%, #efe6d5 100%);
+  min-height: 100vh;
+  padding: 20px 12px;
+  margin: 0;
+  position: relative;
+}
+
+/* Fundo decorativo sutil (opcional) */
+body::before {
+  content: "📚";
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 60px;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 8px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ========== TÍTULOS COM ANIMAÇÃO ========== */
+h1,
+h2,
+h3,
+h4 {
+  text-align: center;
+  word-break: break-word;
+  letter-spacing: -0.3px;
+}
+
+h1 {
+  font-size: 2.2rem;
+  margin: 0.5rem 0 1rem;
+  color: #5d3a1a;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
+  animation: fadeInDown 0.6s ease-out;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin: 0.8rem 0;
+  color: #2c5f2d;
+  position: relative;
+  display: inline-block;
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 8px;
+}
+
+h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 3px;
+  background: linear-gradient(90deg, #ffc107, #ff8c00);
+  border-radius: 3px;
+}
+
+/* ========== BOTÕES COM ANIMAÇÃO ========== */
+.btn {
+  font-size: 1.2rem;
+  padding: 14px 20px;
+  border-radius: 60px;
+  transition: all 0.25s ease;
+  margin: 8px 0;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+  color: white;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #212529;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545, #bd2130);
+  color: white;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #17a2b8, #0f6674);
+  color: white;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  transform: none;
+  cursor: not-allowed;
+  filter: grayscale(0.1);
+}
+
+/* ========== CARDS COM EFEITO FLUTUANTE ========== */
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(2px);
+  border-radius: 32px;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.02);
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #f9eec1, #f4e4c1);
+  padding: 16px;
+  border-bottom: 1px solid #e9d8b4;
+  text-align: center;
+}
+
+.card-header h4 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #3b2a1f;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 18px;
+}
+
+/* ========== CARTELA DO JOGADOR (5x3) ========== */
+#cartelaContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeInUp 0.5s ease;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.col-4 {
+  flex: 1;
+  max-width: 32%;
+}
+
+.cartela-item {
+  background: linear-gradient(145deg, #ffffff, #fff9ef);
+  border: 2px solid #e2c49c;
+  border-radius: 16px;
+  padding: 14px 6px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a2e14;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  word-break: break-word;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.cartela-item:active {
+  transform: scale(0.96);
+  background: #ffe6b3;
+}
+
+/* Célula selecionada */
+.cartela-item.selecionado {
+  background: linear-gradient(145deg, #ffdb7e, #ffcd4a) !important;
+  border: 3px solid #b87c00;
+  color: #2c1b08;
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.4);
+  transform: scale(1.02);
+}
+
+/* ========== LISTA DE JOGADORES ========== */
+.list-group {
+  list-style: none;
+  padding: 0;
+}
+
+.list-group-item {
+  background: #ffffffcc;
+  backdrop-filter: blur(4px);
+  margin-bottom: 8px;
+  padding: 12px 16px;
+  border-radius: 40px;
+  border: 1px solid #eedcbb;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s;
+}
+
+.list-group-item:hover {
+  background: #fff9ef;
+  transform: translateX(5px);
+}
+
+.text-decoration-line-through {
+  text-decoration: line-through;
+  background-color: #e0cfb3;
+  opacity: 0.8;
+}
+
+/* ========== HISTÓRICO ========== */
+.historico-item {
+  background: #fff7e8;
+  border-left: 6px solid #ffaa33;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.historico-item:hover {
+  transform: translateX(6px);
+  background: #fff2dd;
+}
+
+/* ========== ALERTAS ANIMADOS ========== */
+.alert {
+  padding: 12px;
+  border-radius: 60px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 500;
+  animation: fadeIn 0.4s;
+  backdrop-filter: blur(8px);
+}
+
+.alert-info {
+  background: #d9f0ffcc;
+  color: #004070;
+  border: 1px solid #a0d0ff;
+}
+
+.alert-success {
+  background: #d4eddaee;
+  color: #155724;
+  border: 1px solid #b0e0b0;
+}
+
+.alert-danger {
+  background: #f8d7dae6;
+  color: #721c24;
+  border: 1px solid #f0b0b0;
+}
+
+.alert-warning {
+  background: #fff3cdee;
+  color: #856404;
+  border: 1px solid #ffdf8c;
+}
+
+/* ========== LOBBY ========== */
+#lobbyContent input {
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 1rem;
+  border-radius: 60px;
+  border: 1px solid #e0c8a0;
+  background: #fffdf7;
+  transition: all 0.2s;
+  text-align: center;
+  font-weight: 500;
+}
+
+#lobbyContent input:focus {
+  outline: none;
+  border-color: #ffb347;
+  box-shadow: 0 0 0 3px rgba(255, 180, 71, 0.3);
+  transform: scale(1.01);
+}
+
+/* ========== ÁREA DO MESTRE ========== */
+#perguntaAtual {
+  background: #fff1d6;
+  border-radius: 28px;
+  padding: 15px;
+  border-left: 8px solid #ff9800;
+  animation: pulseBorder 1.5s infinite;
+}
+
+@keyframes pulseBorder {
+  0% {
+    border-left-color: #ff9800;
+  }
+  50% {
+    border-left-color: #ffcc80;
+  }
+  100% {
+    border-left-color: #ff9800;
+  }
+}
+
+#textoPergunta,
+#textoResposta {
+  font-weight: bold;
+  display: block;
+  word-break: break-word;
+}
+
+/* ========== TELA DE ELIMINADO ========== */
+.eliminado-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: radial-gradient(circle, #f5e7d3, #e3d0b5);
+  padding: 20px;
+}
+
+.eliminado-card {
+  background: white;
+  border-radius: 64px;
+  box-shadow: 0 25px 45px -12px black;
+  padding: 40px 30px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  animation: bounceIn 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.eliminado-card h3 {
+  font-size: 2.5rem;
+  color: #dc3545;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.eliminado-card p {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+.eliminado-card .btn {
+  background: #5d3a1a;
+  width: auto;
+  padding: 12px 28px;
+  display: inline-block;
+}
+
+/* ========== ANIMAÇÕES GLOBAIS ========== */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ========== RESPONSIVIDADE ========== */
+@media (max-width: 480px) {
+  body {
+    padding: 12px 8px;
+  }
+  .cartela-item {
+    font-size: 0.75rem;
+    padding: 8px 2px;
+    min-height: 55px;
+  }
+  .btn {
+    font-size: 1rem;
+    padding: 10px 12px;
+  }
+  h1 {
+    font-size: 1.8rem;
+  }
+  h2 {
+    font-size: 1.4rem;
+  }
+  .card-header h4 {
+    font-size: 1.1rem;
+  }
+  .list-group-item {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .cartela-item {
+    font-size: 0.65rem;
+    padding: 6px 2px;
+    min-height: 48px;
+  }
+  .btn {
+    font-size: 0.85rem;
+  }
+}
+
+/* Remove hover em dispositivos touch */
+@media (hover: none) {
+  .cartela-item:hover {
+    background: linear-gradient(145deg, #ffffff, #fff9ef);
+  }
+  .card:hover {
+    transform: none;
+  }
+  .btn:hover::before {
+    left: -100%;
+  }
+}
