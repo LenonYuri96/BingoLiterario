@@ -5,6 +5,12 @@ let bingoJaAvisado = false;
 let historicoRespostas = [];
 
 window.onload = async () => {
+  // Limpeza forçada de seleções antigas ao iniciar a página
+  const nomeTemp = sessionStorage.getItem("meuNome");
+  if (nomeTemp) {
+    localStorage.removeItem(`selecoes_${nomeTemp}`);
+  }
+
   if (localStorage.getItem("jogoFinalizado") === "true") {
     const vencedor = localStorage.getItem("vencedor") || "alguém";
     if (sessionStorage.getItem("meuNome") === vencedor) {
@@ -14,9 +20,6 @@ window.onload = async () => {
     }
     return;
   }
-
-  const nomeTemp = sessionStorage.getItem("meuNome");
-  if (nomeTemp) localStorage.removeItem(`selecoes_${nomeTemp}`);
 
   if (localStorage.getItem("jogoIniciado") !== "true") {
     alert("O jogo ainda não começou. Aguarde o mestre iniciar.");
@@ -76,16 +79,18 @@ window.onload = async () => {
   renderizarJogador();
 
   const historicoSalvo = localStorage.getItem("historico");
-  if (historicoSalvo)
+  if (historicoSalvo) {
     historicoRespostas = JSON.parse(historicoSalvo).map(
       (item) => item.resposta,
     );
+  }
 
   window.addEventListener("storage", (e) => {
     if (e.key === "historico") {
       const novoHistorico = JSON.parse(e.newValue);
-      if (novoHistorico)
+      if (novoHistorico) {
         historicoRespostas = novoHistorico.map((item) => item.resposta);
+      }
     }
     if (e.key === "jogoFinalizado") {
       const vencedor = localStorage.getItem("vencedor") || "alguém";
@@ -108,8 +113,9 @@ async function gerarCartela() {
   }
   const selecionados = autoresUnicos.slice(0, 15);
   const cartela = [];
-  for (let i = 0; i < 5; i++)
+  for (let i = 0; i < 5; i++) {
     cartela.push(selecionados.slice(i * 3, i * 3 + 3));
+  }
   return cartela;
 }
 
@@ -186,38 +192,25 @@ function renderizarJogador() {
     const selecoes = JSON.parse(
       localStorage.getItem(`selecoes_${nomeJogador}`) || "[]",
     );
-    const matrizSelecionada = Array(5)
-      .fill()
-      .map(() => Array(3).fill(false));
-    selecoes.forEach(({ linha, coluna }) => {
-      if (linha < 5 && coluna < 3) matrizSelecionada[linha][coluna] = true;
-    });
 
-    let linhaCompleta = false,
-      colunaCompleta = false;
-    for (let i = 0; i < 5; i++)
-      if (matrizSelecionada[i].every((v) => v === true)) linhaCompleta = true;
-    for (let j = 0; j < 3; j++) {
-      let ok = true;
-      for (let i = 0; i < 5; i++) if (!matrizSelecionada[i][j]) ok = false;
-      if (ok) colunaCompleta = true;
+    // Verifica se o jogador selecionou EXATAMENTE todas as 15 células
+    if (selecoes.length !== 15) {
+      // Não completou a cartela inteira → bingo falso
+      declararBingo(false);
+      return;
     }
 
-    const temBingo = linhaCompleta || colunaCompleta;
-    if (!temBingo) return declararBingo(false);
-
+    // Verifica se todas as células selecionadas estão no histórico de respostas sorteadas
     let todasCorretas = true;
-    for (let i = 0; i < 5; i++) {
-      for (let j = 0; j < 3; j++) {
-        if (matrizSelecionada[i][j]) {
-          if (!historicoRespostas.includes(minhaCartela[i][j])) {
-            todasCorretas = false;
-            break;
-          }
-        }
+    for (const { linha, coluna } of selecoes) {
+      const respostaCelula = minhaCartela[linha][coluna];
+      if (!historicoRespostas.includes(respostaCelula)) {
+        todasCorretas = false;
+        break;
       }
-      if (!todasCorretas) break;
     }
+
+    // Se todas as 15 células foram marcadas e estão no histórico → bingo verdadeiro
     declararBingo(todasCorretas);
   });
 }
@@ -249,7 +242,7 @@ function declararBingo(verdadeiro) {
       <div class="eliminado-container">
         <div class="eliminado-card" style="border: 4px solid gold; background: linear-gradient(135deg, #fff9e6, #fff0c0);">
           <h3 style="color: goldenrod; font-size: 2.5rem;">🏆 VOCÊ VENCEU! 🏆</h3>
-          <p style="font-size: 1.2rem;">Parabéns, ${nomeJogador}! Você fez BINGO verdadeiro.</p>
+          <p style="font-size: 1.2rem;">Parabéns, ${nomeJogador}! Você completou a cartela inteira!</p>
           <a href="index.html" class="btn" style="background-color: #5d3a1a;">Voltar ao início</a>
         </div>
       </div>
@@ -276,7 +269,7 @@ function mostrarTelaEliminado() {
     <div class="eliminado-container">
       <div class="eliminado-card">
         <h3>❌ ELIMINADO</h3>
-        <p>Você foi eliminado do jogo por declarar BINGO falso.</p>
+        <p>Você foi eliminado do jogo por declarar BINGO sem ter a cartela completa.</p>
         <a href="index.html" class="btn">Voltar ao início</a>
       </div>
     </div>
