@@ -2,7 +2,6 @@
 
 // Limpa toda a comunicação anterior (usado ao finalizar o jogo manualmente)
 function limparEstadoJogo() {
-  // Limpeza local (localStorage)
   localStorage.removeItem("jogoIniciado");
   localStorage.removeItem("jogadores");
   localStorage.removeItem("sorteioAtual");
@@ -14,11 +13,6 @@ function limparEstadoJogo() {
   localStorage.removeItem("bingoAviso");
   localStorage.removeItem("bingoFalso");
   localStorage.removeItem("erroJogador");
-
-  // Limpeza remota (planilha) – a função resetarJogoRemoto está definida em sheets.js
-  if (typeof resetarJogoRemoto === "function") {
-    resetarJogoRemoto().catch(console.error);
-  }
 }
 
 // Limpa estados inconsistentes (ex: jogoFinalizado true sem jogoIniciado)

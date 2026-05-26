@@ -3,30 +3,16 @@ let minhaCartela = [];
 let nomeJogador = "";
 let bingoJaAvisado = false;
 let historicoRespostas = [];
-let heartbeatInterval = null;
-let pollingHistoricoInterval = null;
 
 window.onload = async () => {
-  // Limpeza forçada de seleções antigas ao iniciar a página (mantido do original)
+  // Limpeza forçada de seleções antigas ao iniciar a página
   const nomeTemp = sessionStorage.getItem("meuNome");
   if (nomeTemp) {
     localStorage.removeItem(`selecoes_${nomeTemp}`);
   }
 
-  // Obtém estado e jogadores da planilha (via API)
-  const { estado, jogadores } = await obterEstadoCompleto();
-
-  // 🔒 Verificação de segurança: garante que 'estado' seja um objeto válido
-  if (!estado || typeof estado !== "object") {
-    console.error("Estado inválido recebido da API:", estado);
-    alert(
-      "Erro ao carregar dados do servidor. Recarregue a página e tente novamente.",
-    );
-    return;
-  }
-
-  if (estado.jogoFinalizado === "true") {
-    const vencedor = estado.vencedor || "alguém";
+  if (localStorage.getItem("jogoFinalizado") === "true") {
+    const vencedor = localStorage.getItem("vencedor") || "alguém";
     if (sessionStorage.getItem("meuNome") === vencedor) {
       mostrarTelaVencedor(vencedor);
     } else {
@@ -35,7 +21,7 @@ window.onload = async () => {
     return;
   }
 
-  if (estado.jogoIniciado !== "true") {
+  if (localStorage.getItem("jogoIniciado") !== "true") {
     alert("O jogo ainda não começou. Aguarde o mestre iniciar.");
     window.location.href = "lobby.html?role=jogador";
     return;
@@ -48,81 +34,84 @@ window.onload = async () => {
     sessionStorage.setItem("meuNome", nomeJogador);
   }
 
-  const jogadorExistente = jogadores.find((j) => j.nome === nomeJogador);
-  if (!jogadorExistente || jogadorExistente.presente === false) {
-    mostrarTelaEliminado();
-    return;
-  }
-  if (jogadorExistente.bingoCorreto === true) {
-    mostrarTelaVencedor(nomeJogador);
-    return;
+  let jogadoresAtuais = JSON.parse(localStorage.getItem("jogadores") || "[]");
+  if (!jogadoresAtuais.some((j) => j.nome === nomeJogador)) {
+    jogadoresAtuais.push({
+      nome: nomeJogador,
+      cartela: null,
+      pontuacao: 0,
+      bingo: false,
+      presente: true,
+      bingoCorreto: false,
+      horario: new Date().toISOString(),
+    });
+    localStorage.setItem("jogadores", JSON.stringify(jogadoresAtuais));
+  } else {
+    const idx = jogadoresAtuais.findIndex((j) => j.nome === nomeJogador);
+    if (idx !== -1 && jogadoresAtuais[idx].presente === false) {
+      mostrarTelaEliminado();
+      return;
+    }
+    if (jogadoresAtuais[idx].bingoCorreto === true) {
+      mostrarTelaVencedor(nomeJogador);
+      return;
+    }
   }
 
-  // Carrega cartela (se não tiver, gera e salva na planilha)
+  const cartelasSalvas = JSON.parse(localStorage.getItem("cartelas") || "{}");
   if (
-    jogadorExistente.cartela &&
-    JSON.parse(jogadorExistente.cartela).length === 5
+    cartelasSalvas[nomeJogador] &&
+    cartelasSalvas[nomeJogador].length === 5 &&
+    cartelasSalvas[nomeJogador][0].length === 3
   ) {
-    minhaCartela = JSON.parse(jogadorExistente.cartela);
+    minhaCartela = cartelasSalvas[nomeJogador];
   } else {
     minhaCartela = await gerarCartela();
-    await atualizarJogadorRemoto({
-      nome: nomeJogador,
-      cartela: JSON.stringify(minhaCartela),
-    });
+    cartelasSalvas[nomeJogador] = minhaCartela;
+    localStorage.setItem("cartelas", JSON.stringify(cartelasSalvas));
+    let jogadores = JSON.parse(localStorage.getItem("jogadores") || "[]");
+    const idx = jogadores.findIndex((j) => j.nome === nomeJogador);
+    if (idx !== -1) {
+      jogadores[idx].cartela = minhaCartela;
+      localStorage.setItem("jogadores", JSON.stringify(jogadores));
+    }
   }
-
-  // Recupera seleções do próprio navegador (não compartilhadas)
-  const selecoesSalvas = localStorage.getItem(`selecoes_${nomeJogador}`);
-  if (selecoesSalvas) {
-    // mantém as marcações locais
-  }
-
   renderizarJogador();
 
-  // Carrega histórico de respostas sorteadas a partir do estado remoto
-  historicoRespostas = JSON.parse(estado.historico || "[]").map(
-    (item) => item.resposta,
-  );
+  const historicoSalvo = localStorage.getItem("historico");
+  if (historicoSalvo) {
+    historicoRespostas = JSON.parse(historicoSalvo).map(
+      (item) => item.resposta,
+    );
+  }
 
-  // Heartbeat (envia lastSeen a cada 5s para manter o jogador como "online" na planilha)
-  heartbeatInterval = setInterval(() => {
-    atualizarJogadorRemoto({
-      nome: nomeJogador,
-      lastSeen: Date.now(),
-      presente: true,
-    });
-  }, 5000);
-
-  // Polling para atualizar histórico e estado do jogo (a cada 2 segundos)
-  pollingHistoricoInterval = setInterval(async () => {
-    const { estado: novoEstado } = await obterEstadoCompleto();
-    if (novoEstado && novoEstado.historico) {
-      const novoHist = JSON.parse(novoEstado.historico).map((i) => i.resposta);
-      if (JSON.stringify(novoHist) !== JSON.stringify(historicoRespostas)) {
-        historicoRespostas = novoHist;
+  window.addEventListener("storage", (e) => {
+    if (e.key === "historico") {
+      const novoHistorico = JSON.parse(e.newValue);
+      if (novoHistorico) {
+        historicoRespostas = novoHistorico.map((item) => item.resposta);
       }
     }
-    if (novoEstado && novoEstado.jogoFinalizado === "true") {
-      if (novoEstado.vencedor === nomeJogador) {
-        mostrarTelaVencedor(nomeJogador);
+    if (e.key === "jogoFinalizado") {
+      const vencedor = localStorage.getItem("vencedor") || "alguém";
+      if (nomeJogador === vencedor) {
+        mostrarTelaVencedor(vencedor);
       } else {
-        mostrarTelaJogoEncerrado(novoEstado.vencedor);
+        mostrarTelaJogoEncerrado(vencedor);
       }
-      if (heartbeatInterval) clearInterval(heartbeatInterval);
-      if (pollingHistoricoInterval) clearInterval(pollingHistoricoInterval);
     }
-  }, 2000);
+  });
 };
 
 async function gerarCartela() {
   const dados = await carregarDadosDoBingo();
-  const autores = [...new Set(dados.map((item) => item.resposta))];
-  for (let i = autores.length - 1; i > 0; i--) {
+  const todosAutores = dados.map((item) => item.resposta);
+  const autoresUnicos = [...new Set(todosAutores)];
+  for (let i = autoresUnicos.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [autores[i], autores[j]] = [autores[j], autores[i]];
+    [autoresUnicos[i], autoresUnicos[j]] = [autoresUnicos[j], autoresUnicos[i]];
   }
-  const selecionados = autores.slice(0, 15);
+  const selecionados = autoresUnicos.slice(0, 15);
   const cartela = [];
   for (let i = 0; i < 5; i++) {
     cartela.push(selecionados.slice(i * 3, i * 3 + 3));
@@ -163,7 +152,6 @@ function renderizarJogador() {
     </div>
   `;
 
-  // Restaura as marcações salvas no localStorage do navegador
   const selecoes = JSON.parse(
     localStorage.getItem(`selecoes_${nomeJogador}`) || "[]",
   );
@@ -174,10 +162,10 @@ function renderizarJogador() {
     if (cell) cell.classList.add("selecionado");
   });
 
-  // Adiciona evento de clique nas células da cartela
   document.querySelectorAll(".cartela-item").forEach((cell) => {
     cell.addEventListener("click", () => {
-      if (bingoJaAvisado) return;
+      if (bingoJaAvisado || localStorage.getItem("jogoFinalizado") === "true")
+        return;
       const linha = parseInt(cell.dataset.linha);
       const coluna = parseInt(cell.dataset.coluna);
       let selecoes = JSON.parse(
@@ -197,57 +185,82 @@ function renderizarJogador() {
     });
   });
 
-  // Botão de verificar BINGO
-  document
-    .getElementById("btnVerificarBingo")
-    .addEventListener("click", async () => {
-      if (bingoJaAvisado) return;
-      const selecoes = JSON.parse(
-        localStorage.getItem(`selecoes_${nomeJogador}`) || "[]",
-      );
+  document.getElementById("btnVerificarBingo").addEventListener("click", () => {
+    if (bingoJaAvisado || localStorage.getItem("jogoFinalizado") === "true")
+      return;
 
-      // Verifica se selecionou exatamente 15 células (cartela completa)
-      if (selecoes.length !== 15) {
-        declararBingo(false);
-        return;
-      }
+    const selecoes = JSON.parse(
+      localStorage.getItem(`selecoes_${nomeJogador}`) || "[]",
+    );
 
-      // Verifica se todas as células selecionadas estão no histórico de respostas sorteadas
-      let todasCorretas = true;
-      for (const { linha, coluna } of selecoes) {
-        const respostaCelula = minhaCartela[linha][coluna];
-        if (!historicoRespostas.includes(respostaCelula)) {
-          todasCorretas = false;
-          break;
-        }
+    // Verifica se o jogador selecionou EXATAMENTE todas as 15 células
+    if (selecoes.length !== 15) {
+      // Não completou a cartela inteira → bingo falso
+      declararBingo(false);
+      return;
+    }
+
+    // Verifica se todas as células selecionadas estão no histórico de respostas sorteadas
+    let todasCorretas = true;
+    for (const { linha, coluna } of selecoes) {
+      const respostaCelula = minhaCartela[linha][coluna];
+      if (!historicoRespostas.includes(respostaCelula)) {
+        todasCorretas = false;
+        break;
       }
-      declararBingo(todasCorretas);
-    });
+    }
+
+    // Se todas as 15 células foram marcadas e estão no histórico → bingo verdadeiro
+    declararBingo(todasCorretas);
+  });
 }
 
-async function declararBingo(verdadeiro) {
-  if (bingoJaAvisado) return;
+function declararBingo(verdadeiro) {
+  if (bingoJaAvisado || localStorage.getItem("jogoFinalizado") === "true")
+    return;
   bingoJaAvisado = true;
 
   if (verdadeiro) {
-    // BINGO verdadeiro: finaliza o jogo na planilha e declara vencedor
-    await atualizarEstadoRemoto({
-      jogoFinalizado: "true",
-      vencedor: nomeJogador,
-    });
-    mostrarTelaVencedor(nomeJogador);
-    if (heartbeatInterval) clearInterval(heartbeatInterval);
-    if (pollingHistoricoInterval) clearInterval(pollingHistoricoInterval);
+    localStorage.setItem(
+      "bingoAviso",
+      JSON.stringify({ jogador: nomeJogador, timestamp: Date.now() }),
+    );
+    localStorage.setItem("jogoFinalizado", "true");
+    localStorage.setItem("vencedor", nomeJogador);
+
+    let jogadores = JSON.parse(localStorage.getItem("jogadores") || "[]");
+    const idx = jogadores.findIndex((j) => j.nome === nomeJogador);
+    if (idx !== -1) {
+      jogadores[idx].bingo = true;
+      jogadores[idx].bingoCorreto = true;
+      jogadores[idx].pontuacao += 1;
+      localStorage.setItem("jogadores", JSON.stringify(jogadores));
+    }
+
+    // Tela de vencedor comemorativa
+    document.body.innerHTML = `
+      <div class="eliminado-container">
+        <div class="eliminado-card" style="border: 4px solid gold; background: linear-gradient(135deg, #fff9e6, #fff0c0);">
+          <h3 style="color: goldenrod; font-size: 2.5rem;">🏆 VOCÊ VENCEU! 🏆</h3>
+          <p style="font-size: 1.2rem;">Parabéns, ${nomeJogador}! Você completou a cartela inteira!</p>
+          <a href="index.html" class="btn" style="background-color: #5d3a1a;">Voltar ao início</a>
+        </div>
+      </div>
+    `;
+    setTimeout(() => (window.location.href = "index.html"), 6000);
   } else {
-    // BINGO falso: elimina o jogador na planilha
-    await atualizarJogadorRemoto({
-      nome: nomeJogador,
-      presente: false,
-      bingoCorreto: false,
-    });
+    localStorage.setItem(
+      "bingoFalso",
+      JSON.stringify({ jogador: nomeJogador, timestamp: Date.now() }),
+    );
+    let jogadores = JSON.parse(localStorage.getItem("jogadores") || "[]");
+    const idx = jogadores.findIndex((j) => j.nome === nomeJogador);
+    if (idx !== -1) {
+      jogadores[idx].presente = false;
+      jogadores[idx].bingoCorreto = false;
+      localStorage.setItem("jogadores", JSON.stringify(jogadores));
+    }
     mostrarTelaEliminado();
-    if (heartbeatInterval) clearInterval(heartbeatInterval);
-    if (pollingHistoricoInterval) clearInterval(pollingHistoricoInterval);
   }
 }
 
