@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogador - Bingo Literário</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/jogador.css">
 </head>
-
 <body>
     <div class="container jogador-container">
         <h2 class="text-center">🎲 Sua Cartela</h2>
         <div id="jogadorPanel"></div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js",
+                "firebase/database": "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js"
+            }
+        }
+    </script>
+    <script type="module" src="assets/js/firebase-init.js"></script>
     <script src="assets/js/sheets.js"></script>
-    <script src="assets/js/jogador.js"></script>
-    <script src="assets/js/bingo.js"></script>
+    <script type="module" src="assets/js/jogador.js"></script>
 </body>
-
 </html>
