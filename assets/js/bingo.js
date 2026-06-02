@@ -1,16 +1,21 @@
-// bingo.js
+// bingo.js - Função de verificação de bingo (5x3)
 function verificarBingo(cartela, nomeJogador) {
-  // Cartela é 5x3
+  // Recupera as marcações do jogador no localStorage
   const marcacoes = JSON.parse(
     localStorage.getItem(`marcacoes_${nomeJogador}`) || "[]",
   );
+
+  // Cria matriz 5x3 para controle das células marcadas
   const marcadas = Array(5)
     .fill()
     .map(() => Array(3).fill(false));
+
+  // Marca as posições que o jogador selecionou
   marcacoes.forEach(({ linha, coluna }) => {
     if (linha < 5 && coluna < 3) marcadas[linha][coluna] = true;
   });
-  // Verificar linhas completas
+
+  // Verifica linhas completas (5 linhas)
   for (let i = 0; i < 5; i++) {
     let linhaCompleta = true;
     for (let j = 0; j < 3; j++) {
@@ -21,7 +26,8 @@ function verificarBingo(cartela, nomeJogador) {
     }
     if (linhaCompleta) return true;
   }
-  // Verificar colunas (3 colunas)
+
+  // Verifica colunas completas (3 colunas)
   for (let j = 0; j < 3; j++) {
     let colunaCompleta = true;
     for (let i = 0; i < 5; i++) {
@@ -32,7 +38,7 @@ function verificarBingo(cartela, nomeJogador) {
     }
     if (colunaCompleta) return true;
   }
-  // Opcional: cartela toda (mas com 5x3, linha ou coluna já basta)
-  // Verificar diagonal não se aplica (5x3)
+
+  // Nenhuma linha ou coluna completa → ainda não é BINGO
   return false;
 }

@@ -1,4 +1,4 @@
-// sheets.js
+// sheets.js - Carregamento de dados da planilha Google Sheets
 const CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1ISirEM6MHmtCO3h6AsOrJy6u53UfvE54jF0maos3oSpGm-5XvnoTpblNU1K13V2vsnM16NM8dX49/pub?output=csv";
 
@@ -58,20 +58,13 @@ async function carregarDadosDoBingo() {
 
     if (linhas.length < 2) return [];
 
-    // A primeira linha é o cabeçalho. Vamos assumir coluna 0 = Obra/Pergunta, coluna 1 = Autor/Resposta
+    // A primeira linha é o cabeçalho. Coluna 0 = Obra/Pergunta, coluna 1 = Autor/Resposta
     const dados = [];
     for (let i = 1; i < linhas.length; i++) {
-      const pergunta = linhas[i][0]
-        ? linhas[i][0].replace(/^"|"$/g, "").trim()
-        : "";
-      const resposta = linhas[i][1]
-        ? linhas[i][1].replace(/^"|"$/g, "").trim()
-        : "";
+      const pergunta = linhas[i][0] ? linhas[i][0].replace(/^"|"$/g, "").trim() : "";
+      const resposta = linhas[i][1] ? linhas[i][1].replace(/^"|"$/g, "").trim() : "";
       if (pergunta && resposta) {
-        dados.push({
-          pergunta: pergunta,
-          resposta: resposta,
-        });
+        dados.push({ pergunta, resposta });
       }
     }
     return dados;
@@ -80,3 +73,6 @@ async function carregarDadosDoBingo() {
     return [];
   }
 }
+
+// 🔥 Torna a função global para ser usada pelos módulos (lobby.js, mestre.js, jogador.js)
+window.carregarDadosDoBingo = carregarDadosDoBingo;

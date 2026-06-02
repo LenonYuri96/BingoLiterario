@@ -1,4 +1,28 @@
-/* ========== RESET E CONFIGURAÇÕES GLOBAIS ========== */
+/* ========== VARIÁVEIS GLOBAIS ========== */
+:root {
+  --primary: #5d3a1a;
+  --primary-dark: #3b2a1f;
+  --primary-light: #8b5a2b;
+  --secondary: #2c5f2d;
+  --secondary-dark: #1e4a1f;
+  --secondary-light: #4a7c4b;
+  --accent: #ffc107;
+  --accent-dark: #e0a800;
+  --danger: #dc3545;
+  --danger-dark: #bd2130;
+  --info: #17a2b8;
+  --info-dark: #138496;
+  --light-bg: #f5f5dc;
+  --card-bg: #ffffff;
+  --text-dark: #2c2c2c;
+  --text-muted: #6c757d;
+  --border-radius: 20px;
+  --border-radius-sm: 12px;
+  --shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.12);
+  --transition: all 0.2s ease;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -6,198 +30,248 @@
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f5dc;
-  padding: 0 8px 20px 8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(145deg, #f5f5dc 0%, #e9e2c7 100%);
+  min-height: 100vh;
+  padding: 20px 16px;
   margin: 0;
+  color: var(--text-dark);
+  line-height: 1.4;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 6px;
+  padding: 0 12px;
 }
 
-/* Títulos */
-h1,
-h2,
-h3,
-h4 {
+/* ========== TÍTULOS ========== */
+h1, h2, h3, h4 {
   text-align: center;
   word-break: break-word;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
 }
 
 h1 {
-  font-size: 2rem;
-  margin-top: 1rem;
-  color: #5d3a1a;
+  font-size: 2.2rem;
+  color: var(--primary);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
 }
-
 h2 {
-  font-size: 1.6rem;
-  margin: 0.8rem 0;
-  color: #2c5f2d;
+  font-size: 1.8rem;
+  color: var(--secondary);
+}
+h3 {
+  font-size: 1.4rem;
+  color: var(--primary);
+}
+h4 {
+  font-size: 1.2rem;
+  color: var(--secondary);
 }
 
-/* Botões base */
+/* ========== BOTÕES ========== */
 .btn {
-  font-size: 1.2rem;
-  padding: 12px 16px;
-  border-radius: 50px;
-  transition: all 0.2s ease;
-  margin: 6px 0;
-  width: 100%;
-  text-align: center;
-  cursor: pointer;
+  display: inline-block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 60px;
   border: none;
-  font-weight: bold;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+  width: 100%;
+  max-width: 320px;
+  margin: 8px auto;
+  box-shadow: var(--shadow);
+}
+
+.btn:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background: linear-gradient(135deg, #007bff, #0056b3);
   color: white;
 }
-.btn-primary:active {
-  background-color: #0062cc;
-  transform: scale(0.98);
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0069d9, #004494);
 }
-
 .btn-success {
-  background-color: #28a745;
+  background: linear-gradient(135deg, #28a745, #1e7e34);
   color: white;
 }
-.btn-success:active {
-  background-color: #1e7e34;
+.btn-success:hover {
+  background: linear-gradient(135deg, #218838, #19692c);
 }
-
 .btn-warning {
-  background-color: #ffc107;
+  background: linear-gradient(135deg, #ffc107, #e0a800);
   color: #212529;
 }
-.btn-warning:active {
-  background-color: #e0a800;
+.btn-warning:hover {
+  background: linear-gradient(135deg, #e0a800, #c69500);
 }
-
 .btn-danger {
-  background-color: #dc3545;
+  background: linear-gradient(135deg, #dc3545, #bd2130);
   color: white;
 }
-.btn-danger:active {
-  background-color: #bd2130;
+.btn-danger:hover {
+  background: linear-gradient(135deg, #c82333, #a71d2a);
 }
-
 .btn-info {
-  background-color: #17a2b8;
+  background: linear-gradient(135deg, #17a2b8, #0f6674);
   color: white;
 }
-.btn-info:active {
-  background-color: #138496;
+.btn-info:hover {
+  background: linear-gradient(135deg, #138496, #0c525d);
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  transform: none;
-  cursor: not-allowed;
-}
-
-/* Cards */
+/* ========== CARDS ========== */
 .card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
   overflow: hidden;
+  margin-bottom: 24px;
+  transition: var(--transition);
 }
-
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
 .card-header {
-  background-color: #f4e4c1;
-  padding: 12px;
-  border-bottom: 1px solid #e0c8a0;
+  background: linear-gradient(135deg, #f9eec1, #f4e4c1);
+  padding: 16px;
+  border-bottom: 1px solid #e9d8b4;
   text-align: center;
 }
-
 .card-header h4 {
   margin: 0;
   font-size: 1.3rem;
-  color: #3b2a1f;
 }
-
 .card-body {
-  padding: 14px;
+  padding: 20px;
 }
 
-/* Listas */
+/* ========== ALERTAS ========== */
+.alert {
+  padding: 12px 16px;
+  border-radius: 60px;
+  margin: 16px 0;
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 500;
+  backdrop-filter: blur(4px);
+}
+.alert-info {
+  background: #d1ecf1cc;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+.alert-success {
+  background: #d4eddaee;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+.alert-danger {
+  background: #f8d7dae6;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+.alert-warning {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+/* ========== LISTAS ========== */
 .list-group {
   list-style: none;
   padding: 0;
 }
-
 .list-group-item {
   background: #fef7e6;
-  margin-bottom: 6px;
-  padding: 10px 12px;
-  border-radius: 30px;
   border: 1px solid #e2d0b6;
-  font-size: 0.95rem;
+  border-radius: 60px;
+  padding: 12px 18px;
+  margin-bottom: 8px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   flex-wrap: wrap;
+  gap: 8px;
+  transition: var(--transition);
 }
-
+.list-group-item:hover {
+  background: #fff4e0;
+  transform: translateX(4px);
+}
 .text-decoration-line-through {
   text-decoration: line-through;
-  background-color: #e9ecef;
-  color: #6c757d;
+  opacity: 0.7;
 }
 
-/* Alertas */
-.alert {
-  padding: 10px;
-  border-radius: 16px;
-  margin: 12px 0;
-  font-size: 0.9rem;
+/* ========== BADGES ========== */
+.badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 50px;
+  background-color: #6c757d;
+  color: white;
   text-align: center;
 }
-
-.alert-info {
-  background-color: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
+.badge.bg-secondary {
+  background-color: #6c757d;
+}
+.badge.bg-info {
+  background-color: var(--info);
+}
+.badge.bg-success {
+  background-color: #28a745;
+}
+.badge.bg-warning {
+  background-color: var(--accent);
+  color: #212529;
 }
 
-.alert-success {
-  background-color: #d4edda;
-  color: #155724;
+/* ========== RESPONSIVIDADE GLOBAL ========== */
+@media (max-width: 768px) {
+  body { padding: 16px 12px; }
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.5rem; }
+  .btn { font-size: 1rem; padding: 10px 16px; }
+  .card-body { padding: 16px; }
+  .list-group-item { font-size: 0.9rem; }
 }
-
-.alert-danger {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.alert-warning {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-/* Responsividade base */
 @media (max-width: 480px) {
-  body {
-    padding: 0 4px 15px 4px;
-  }
-  .btn {
-    font-size: 1rem;
-    padding: 10px 12px;
-  }
-  h1 {
-    font-size: 1.7rem;
-  }
-  h2 {
-    font-size: 1.3rem;
-  }
+  body { padding: 12px 8px; }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.3rem; }
+  .btn { font-size: 0.9rem; padding: 8px 14px; }
+  .card-header h4 { font-size: 1.1rem; }
+  .alert { font-size: 0.8rem; }
 }
 
-.encerrado-card h3 {
-  color: #17a2b8;
+/* ========== ANIMAÇÕES ========== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounceIn {
+  0% { opacity: 0; transform: scale(0.9); }
+  60% { opacity: 1; transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+.animated {
+  animation: fadeIn 0.4s ease-out;
 }

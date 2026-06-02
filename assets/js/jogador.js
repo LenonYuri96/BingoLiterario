@@ -1,112 +1,126 @@
-// jogador.js
+// jogador.js - Regras de bingo: precisa marcar as 15 células E todas as respostas já sorteadas
+import { db, ref, onValue, update, SALA_ID } from './firebase-init.js';
+
 let minhaCartela = [];
 let nomeJogador = "";
 let bingoJaAvisado = false;
 let historicoRespostas = [];
 
-window.onload = async () => {
-  // Limpeza forçada de seleções antigas ao iniciar a página
-  const nomeTemp = sessionStorage.getItem("meuNome");
-  if (nomeTemp) {
-    localStorage.removeItem(`selecoes_${nomeTemp}`);
+// Obtém o nome do jogador salvo no lobby
+nomeJogador = sessionStorage.getItem('meuNome');
+if (!nomeJogador) {
+  alert('Nome não encontrado. Volte ao lobby.');
+  location.href = 'lobby.html?role=jogador';
+}
+
+console.log("🚀 Jogador iniciado. Sala:", SALA_ID, "Nome:", nomeJogador);
+
+// Referências do Firebase
+const salaRef = ref(db, `salas/${SALA_ID}`);
+const jogadorRef = ref(db, `salas/${SALA_ID}/jogadores/${nomeJogador}`);
+const sorteioRef = ref(db, `salas/${SALA_ID}/sorteio/atual`);
+
+// ========== LIMPA SELEÇÕES E HISTÓRICO AO INICIAR JOGO ==========
+function limparSelecoes() {
+  localStorage.removeItem(`selecoes_${SALA_ID}_${nomeJogador}`);
+  console.log("🧹 Seleções antigas removidas.");
+}
+
+function limparHistoricoRespostas() {
+  historicoRespostas = [];
+  localStorage.removeItem(`historico_${SALA_ID}_${nomeJogador}`);
+  console.log("🧹 Histórico de respostas removido.");
+}
+
+// ========== ESCUTA O STATUS DA SALA ==========
+onValue(salaRef, async (snap) => {
+  console.log("📡 Snapshot da sala:", snap.val());
+  if (!snap.exists()) {
+    alert("Sala não encontrada. Volte ao lobby.");
+    location.href = 'lobby.html?role=jogador';
+    return;
   }
 
-  if (localStorage.getItem("jogoFinalizado") === "true") {
-    const vencedor = localStorage.getItem("vencedor") || "alguém";
-    if (sessionStorage.getItem("meuNome") === vencedor) {
-      mostrarTelaVencedor(vencedor);
+  const data = snap.val();
+  console.log("Status da sala:", data.status);
+
+  if (data.status === 'finalizado') {
+    if (data.vencedor === nomeJogador) {
+      mostrarTelaVencedor(data.vencedor);
     } else {
-      mostrarTelaJogoEncerrado(vencedor);
+      mostrarTelaJogoEncerrado(data.vencedor);
     }
     return;
   }
 
-  if (localStorage.getItem("jogoIniciado") !== "true") {
-    alert("O jogo ainda não começou. Aguarde o mestre iniciar.");
-    window.location.href = "lobby.html?role=jogador";
-    return;
+  if (data.status === 'jogando') {
+    // Se o jogo está em andamento e a cartela ainda não foi carregada
+    if (!minhaCartela.length) {
+      // RESETA SELEÇÕES E HISTÓRICO AO INICIAR NOVA PARTIDA
+      limparSelecoes();
+      limparHistoricoRespostas();
+      await carregarOuGerarCartela();
+      renderizarJogador();
+    }
+  } else if (data.status === 'aguardando') {
+    document.getElementById('jogadorPanel').innerHTML = `
+      <div class="card">
+        <div class="card-body text-center">
+          <h4>Aguardando o mestre iniciar o jogo...</h4>
+          <div class="spinner-border text-primary"></div>
+        </div>
+      </div>`;
   }
+});
 
-  nomeJogador = sessionStorage.getItem("meuNome");
-  if (!nomeJogador) {
-    nomeJogador = prompt("Digite seu nome:");
-    if (!nomeJogador) window.location.href = "index.html";
-    sessionStorage.setItem("meuNome", nomeJogador);
+// ========== ESCUTA SORTEIOS (acumula respostas já sorteadas) ==========
+onValue(sorteioRef, (snap) => {
+  if (snap.exists()) {
+    const resposta = snap.val().resposta;
+    if (!historicoRespostas.includes(resposta)) {
+      historicoRespostas.push(resposta);
+      localStorage.setItem(`historico_${SALA_ID}_${nomeJogador}`, JSON.stringify(historicoRespostas));
+      console.log("➕ Resposta adicionada ao histórico:", resposta);
+    }
   }
+});
 
-  let jogadoresAtuais = JSON.parse(localStorage.getItem("jogadores") || "[]");
-  if (!jogadoresAtuais.some((j) => j.nome === nomeJogador)) {
-    jogadoresAtuais.push({
-      nome: nomeJogador,
-      cartela: null,
-      pontuacao: 0,
-      bingo: false,
-      presente: true,
-      bingoCorreto: false,
-      horario: new Date().toISOString(),
-    });
-    localStorage.setItem("jogadores", JSON.stringify(jogadoresAtuais));
-  } else {
-    const idx = jogadoresAtuais.findIndex((j) => j.nome === nomeJogador);
-    if (idx !== -1 && jogadoresAtuais[idx].presente === false) {
+// ========== ESCUTA MUDANÇAS NO PRÓPRIO JOGADOR (eliminação/vitória) ==========
+onValue(jogadorRef, (snap) => {
+  if (snap.exists()) {
+    const data = snap.val();
+    if (data.presente === false && !bingoJaAvisado) {
       mostrarTelaEliminado();
-      return;
     }
-    if (jogadoresAtuais[idx].bingoCorreto === true) {
+    if (data.bingoCorreto === true && !bingoJaAvisado) {
       mostrarTelaVencedor(nomeJogador);
-      return;
     }
   }
+});
 
-  const cartelasSalvas = JSON.parse(localStorage.getItem("cartelas") || "{}");
-  if (
-    cartelasSalvas[nomeJogador] &&
-    cartelasSalvas[nomeJogador].length === 5 &&
-    cartelasSalvas[nomeJogador][0].length === 3
-  ) {
-    minhaCartela = cartelasSalvas[nomeJogador];
-  } else {
-    minhaCartela = await gerarCartela();
-    cartelasSalvas[nomeJogador] = minhaCartela;
-    localStorage.setItem("cartelas", JSON.stringify(cartelasSalvas));
-    let jogadores = JSON.parse(localStorage.getItem("jogadores") || "[]");
-    const idx = jogadores.findIndex((j) => j.nome === nomeJogador);
-    if (idx !== -1) {
-      jogadores[idx].cartela = minhaCartela;
-      localStorage.setItem("jogadores", JSON.stringify(jogadores));
-    }
+// ========== CARREGA OU GERA A CARTELA ==========
+async function carregarOuGerarCartela() {
+  const salva = localStorage.getItem(`cartela_${SALA_ID}_${nomeJogador}`);
+  if (salva) {
+    minhaCartela = JSON.parse(salva);
+    console.log("📦 Cartela carregada do localStorage");
+    return;
   }
-  renderizarJogador();
-
-  const historicoSalvo = localStorage.getItem("historico");
-  if (historicoSalvo) {
-    historicoRespostas = JSON.parse(historicoSalvo).map(
-      (item) => item.resposta,
-    );
-  }
-
-  window.addEventListener("storage", (e) => {
-    if (e.key === "historico") {
-      const novoHistorico = JSON.parse(e.newValue);
-      if (novoHistorico) {
-        historicoRespostas = novoHistorico.map((item) => item.resposta);
-      }
-    }
-    if (e.key === "jogoFinalizado") {
-      const vencedor = localStorage.getItem("vencedor") || "alguém";
-      if (nomeJogador === vencedor) {
-        mostrarTelaVencedor(vencedor);
-      } else {
-        mostrarTelaJogoEncerrado(vencedor);
-      }
-    }
-  });
-};
+  console.log("🃏 Gerando nova cartela...");
+  minhaCartela = await gerarCartela();
+  localStorage.setItem(`cartela_${SALA_ID}_${nomeJogador}`, JSON.stringify(minhaCartela));
+  console.log("✅ Cartela gerada e salva");
+}
 
 async function gerarCartela() {
-  const dados = await carregarDadosDoBingo();
-  const todosAutores = dados.map((item) => item.resposta);
+  if (typeof window.carregarDadosDoBingo !== 'function') {
+    throw new Error("Função carregarDadosDoBingo não disponível. Verifique sheets.js.");
+  }
+  const dados = await window.carregarDadosDoBingo();
+  if (!dados || dados.length === 0) throw new Error("Planilha sem dados");
+  const todosAutores = dados.map(item => item.resposta);
   const autoresUnicos = [...new Set(todosAutores)];
+  // Embaralha e pega 15 autores
   for (let i = autoresUnicos.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [autoresUnicos[i], autoresUnicos[j]] = [autoresUnicos[j], autoresUnicos[i]];
@@ -119,161 +133,126 @@ async function gerarCartela() {
   return cartela;
 }
 
+// ========== RENDERIZA A CARTELA E OS EVENTOS ==========
 function renderizarJogador() {
-  const panel = document.getElementById("jogadorPanel");
+  console.log("🎨 Renderizando jogador");
+  const panel = document.getElementById('jogadorPanel');
+  if (!panel) return;
   panel.innerHTML = `
     <div class="card">
-      <div class="card-header"><h4>Jogador: ${nomeJogador}</h4></div>
+      <div class="card-header"><h4>Jogador: ${escapeHtml(nomeJogador)}</h4></div>
       <div class="card-body">
-        <div id="cartelaContainer" class="container">
-          ${minhaCartela
-            .map(
-              (linha, idxLinha) => `
+        <div id="cartelaContainer">
+          ${minhaCartela.map((linha, idxLinha) => `
             <div class="row mb-2">
-              ${linha
-                .map(
-                  (item, idxCol) => `
+              ${linha.map((item, idxCol) => `
                 <div class="col-4">
-                  <div class="cartela-item text-center p-2" data-linha="${idxLinha}" data-coluna="${idxCol}" data-resposta="${item}">${item}</div>
+                  <div class="cartela-item text-center p-2"
+                       data-linha="${idxLinha}"
+                       data-coluna="${idxCol}"
+                       data-resposta="${escapeHtml(item)}">
+                    ${escapeHtml(item)}
+                  </div>
                 </div>
-              `,
-                )
-                .join("")}
+              `).join('')}
             </div>
-          `,
-            )
-            .join("")}
+          `).join('')}
         </div>
         <hr />
-        <div class="d-flex justify-content-between mt-3">
-          <button id="btnVerificarBingo" class="btn btn-warning">🏆 Verificar Bingo</button>
-        </div>
+        <button id="btnVerificarBingo" class="btn btn-warning">🏆 Verificar Bingo</button>
       </div>
     </div>
   `;
 
-  const selecoes = JSON.parse(
-    localStorage.getItem(`selecoes_${nomeJogador}`) || "[]",
-  );
-  selecoes.forEach((pos) => {
-    const cell = document.querySelector(
-      `.cartela-item[data-linha="${pos.linha}"][data-coluna="${pos.coluna}"]`,
-    );
-    if (cell) cell.classList.add("selecionado");
+  // Restaura seleções salvas (se houver)
+  const selecoesSalvas = JSON.parse(localStorage.getItem(`selecoes_${SALA_ID}_${nomeJogador}`) || '[]');
+  selecoesSalvas.forEach(({ linha, coluna }) => {
+    const cell = document.querySelector(`.cartela-item[data-linha="${linha}"][data-coluna="${coluna}"]`);
+    if (cell) cell.classList.add('selecionado');
   });
 
-  document.querySelectorAll(".cartela-item").forEach((cell) => {
-    cell.addEventListener("click", () => {
-      if (bingoJaAvisado || localStorage.getItem("jogoFinalizado") === "true")
-        return;
+  // Evento de clique nas células
+  document.querySelectorAll('.cartela-item').forEach(cell => {
+    cell.addEventListener('click', () => {
+      if (bingoJaAvisado) return;
       const linha = parseInt(cell.dataset.linha);
       const coluna = parseInt(cell.dataset.coluna);
-      let selecoes = JSON.parse(
-        localStorage.getItem(`selecoes_${nomeJogador}`) || "[]",
-      );
-      const index = selecoes.findIndex(
-        (s) => s.linha === linha && s.coluna === coluna,
-      );
+      let selecoes = JSON.parse(localStorage.getItem(`selecoes_${SALA_ID}_${nomeJogador}`) || '[]');
+      const index = selecoes.findIndex(s => s.linha === linha && s.coluna === coluna);
       if (index === -1) {
         selecoes.push({ linha, coluna });
-        cell.classList.add("selecionado");
+        cell.classList.add('selecionado');
       } else {
         selecoes.splice(index, 1);
-        cell.classList.remove("selecionado");
+        cell.classList.remove('selecionado');
       }
-      localStorage.setItem(`selecoes_${nomeJogador}`, JSON.stringify(selecoes));
+      localStorage.setItem(`selecoes_${SALA_ID}_${nomeJogador}`, JSON.stringify(selecoes));
     });
   });
 
-  document.getElementById("btnVerificarBingo").addEventListener("click", () => {
-    if (bingoJaAvisado || localStorage.getItem("jogoFinalizado") === "true")
-      return;
+  // Botão verificar bingo
+  document.getElementById('btnVerificarBingo').addEventListener('click', () => {
+    if (bingoJaAvisado) return;
 
-    const selecoes = JSON.parse(
-      localStorage.getItem(`selecoes_${nomeJogador}`) || "[]",
-    );
+    const selecoes = JSON.parse(localStorage.getItem(`selecoes_${SALA_ID}_${nomeJogador}`) || '[]');
+    console.log("🔍 Seleções atuais:", selecoes.length, "de 15");
 
-    // Verifica se o jogador selecionou EXATAMENTE todas as 15 células
+    // REGRA 1: Deve ter marcado EXATAMENTE as 15 células
     if (selecoes.length !== 15) {
-      // Não completou a cartela inteira → bingo falso
+      console.log("❌ Seleções incompletas. Bingo falso!");
       declararBingo(false);
       return;
     }
 
-    // Verifica se todas as células selecionadas estão no histórico de respostas sorteadas
+    // REGRA 2: Todas as células marcadas devem corresponder a respostas já sorteadas
     let todasCorretas = true;
     for (const { linha, coluna } of selecoes) {
       const respostaCelula = minhaCartela[linha][coluna];
       if (!historicoRespostas.includes(respostaCelula)) {
+        console.log(`❌ Célula (${linha},${coluna}) = "${respostaCelula}" NÃO foi sorteada ainda.`);
         todasCorretas = false;
         break;
       }
     }
 
-    // Se todas as 15 células foram marcadas e estão no histórico → bingo verdadeiro
-    declararBingo(todasCorretas);
+    if (todasCorretas) {
+      console.log("🎉 TODAS as células foram sorteadas! BINGO VERDADEIRO!");
+      declararBingo(true);
+    } else {
+      console.log("❌ Alguma célula não foi sorteada. Bingo falso!");
+      declararBingo(false);
+    }
   });
 }
 
-function declararBingo(verdadeiro) {
-  if (bingoJaAvisado || localStorage.getItem("jogoFinalizado") === "true")
-    return;
+// ========== LÓGICA DE DECLARAÇÃO DE BINGO ==========
+async function declararBingo(verdadeiro) {
+  if (bingoJaAvisado) return;
   bingoJaAvisado = true;
 
   if (verdadeiro) {
-    localStorage.setItem(
-      "bingoAviso",
-      JSON.stringify({ jogador: nomeJogador, timestamp: Date.now() }),
-    );
-    localStorage.setItem("jogoFinalizado", "true");
-    localStorage.setItem("vencedor", nomeJogador);
-
-    let jogadores = JSON.parse(localStorage.getItem("jogadores") || "[]");
-    const idx = jogadores.findIndex((j) => j.nome === nomeJogador);
-    if (idx !== -1) {
-      jogadores[idx].bingo = true;
-      jogadores[idx].bingoCorreto = true;
-      jogadores[idx].pontuacao += 1;
-      localStorage.setItem("jogadores", JSON.stringify(jogadores));
-    }
-
-    // Tela de vencedor comemorativa
-    document.body.innerHTML = `
-      <div class="eliminado-container">
-        <div class="eliminado-card" style="border: 4px solid gold; background: linear-gradient(135deg, #fff9e6, #fff0c0);">
-          <h3 style="color: goldenrod; font-size: 2.5rem;">🏆 VOCÊ VENCEU! 🏆</h3>
-          <p style="font-size: 1.2rem;">Parabéns, ${nomeJogador}! Você completou a cartela inteira!</p>
-          <a href="index.html" class="btn" style="background-color: #5d3a1a;">Voltar ao início</a>
-        </div>
-      </div>
-    `;
-    setTimeout(() => (window.location.href = "index.html"), 6000);
+    // BINGO VERDADEIRO – finaliza o jogo
+    await update(salaRef, { status: 'finalizado', vencedor: nomeJogador });
+    await update(jogadorRef, { bingoCorreto: true, bingo: true });
+    localStorage.setItem(`jogoFinalizado_${SALA_ID}`, 'true');
+    mostrarTelaVencedor(nomeJogador);
   } else {
-    localStorage.setItem(
-      "bingoFalso",
-      JSON.stringify({ jogador: nomeJogador, timestamp: Date.now() }),
-    );
-    let jogadores = JSON.parse(localStorage.getItem("jogadores") || "[]");
-    const idx = jogadores.findIndex((j) => j.nome === nomeJogador);
-    if (idx !== -1) {
-      jogadores[idx].presente = false;
-      jogadores[idx].bingoCorreto = false;
-      localStorage.setItem("jogadores", JSON.stringify(jogadores));
-    }
+    // BINGO FALSO – jogador é eliminado
+    await update(jogadorRef, { presente: false, bingoCorreto: false });
     mostrarTelaEliminado();
   }
 }
 
+// ========== TELAS DE FEEDBACK ==========
 function mostrarTelaEliminado() {
   document.body.innerHTML = `
     <div class="eliminado-container">
       <div class="eliminado-card">
         <h3>❌ ELIMINADO</h3>
-        <p>Você foi eliminado do jogo por declarar BINGO sem ter a cartela completa.</p>
+        <p>Você foi eliminado do jogo por declarar BINGO sem ter a cartela completa ou sem que todas as respostas tenham sido sorteadas.</p>
         <a href="index.html" class="btn">Voltar ao início</a>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 function mostrarTelaJogoEncerrado(vencedor) {
@@ -281,21 +260,29 @@ function mostrarTelaJogoEncerrado(vencedor) {
     <div class="eliminado-container">
       <div class="eliminado-card">
         <h3>🏆 JOGO ENCERRADO</h3>
-        <p>O jogo terminou. O vencedor foi: <strong>${vencedor}</strong></p>
+        <p>O jogo terminou. O vencedor foi: <strong>${escapeHtml(vencedor)}</strong></p>
         <a href="index.html" class="btn">Voltar ao início</a>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 function mostrarTelaVencedor(vencedor) {
   document.body.innerHTML = `
     <div class="eliminado-container">
-      <div class="eliminado-card" style="border: 4px solid gold; background: linear-gradient(135deg, #fff9e6, #fff0c0);">
-        <h3 style="color: goldenrod; font-size: 2rem;">🏆 VOCÊ É O VENCEDOR! 🏆</h3>
-        <p>Parabéns, ${vencedor}! Você venceu o Bingo Literário.</p>
+      <div class="eliminado-card" style="border:4px solid gold; background:linear-gradient(135deg,#fff9e6,#fff0c0);">
+        <h3 style="color:goldenrod; font-size:2rem;">🏆 VOCÊ VENCEU! 🏆</h3>
+        <p>Parabéns, ${escapeHtml(vencedor)}! Você completou a cartela inteira com todas as respostas sorteadas!</p>
         <a href="index.html" class="btn">Voltar ao início</a>
       </div>
-    </div>
-  `;
+    </div>`;
+  setTimeout(() => (window.location.href = 'index.html'), 5000);
+}
+
+// Carrega histórico salvo localmente (se houver – será limpo ao iniciar o jogo)
+const historicoSalvo = localStorage.getItem(`historico_${SALA_ID}_${nomeJogador}`);
+if (historicoSalvo) historicoRespostas = JSON.parse(historicoSalvo);
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
 }

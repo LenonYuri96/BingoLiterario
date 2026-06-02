@@ -1,4 +1,4 @@
-// app.js - Funções globais e utilidades
+// app.js - Funções globais e utilitárias (versão original com localStorage)
 
 // Limpa toda a comunicação anterior (usado ao finalizar o jogo manualmente)
 function limparEstadoJogo() {

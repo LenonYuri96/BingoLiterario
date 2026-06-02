@@ -1,213 +1,288 @@
-/* jogador.css - Tela do Jogador (responsivo e otimizado) */
+/* ===================== JOGADOR - BINGO EDUCATIVO ===================== */
+/* Design moderno, responsivo e animado */
+
+/* ---------- VARIÁVEIS GLOBAL ---------- */
+:root {
+  --bg-gradient: linear-gradient(145deg, #fef9e6 0%, #fff4e0 100%);
+  --card-bg: rgba(255, 255, 255, 0.96);
+  --primary: #f5b042;
+  --primary-dark: #d48f2b;
+  --secondary: #2c3e4e;
+  --accent: #27ae60;
+  --danger: #e74c3c;
+  --text-dark: #2c1810;
+  --text-light: #7f8c8d;
+  --border-gold: #e6c27a;
+  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.12);
+  --transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+/* ---------- BASE ---------- */
+body {
+  background: var(--bg-gradient);
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 16px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* Container principal */
 .jogador-container {
-  max-width: 600px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 0 10px;
+  width: 100%;
+  animation: fadeInUp 0.5s ease;
 }
 
+/* Títulos */
 .jogador-container h2 {
-  font-size: 1.6rem;
+  font-size: 1.9rem;
+  font-weight: 800;
   text-align: center;
-  margin-bottom: 1rem;
+  color: var(--primary-dark);
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.05);
+  margin-bottom: 1.2rem;
+  letter-spacing: -0.5px;
 }
 
-/* Card da cartela */
+/* ---------- CARD PRINCIPAL ---------- */
 .card {
   border: none;
-  border-radius: 28px;
-  background: white;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 40px;
+  background: var(--card-bg);
+  backdrop-filter: blur(2px);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
+  transition: var(--transition);
 }
 
 .card-header {
-  background: #f4e4c1;
-  padding: 1rem;
+  background: #f9eec1;
+  padding: 1rem 1.2rem;
   text-align: center;
-  border-bottom: 1px solid #e0c8a0;
+  border-bottom: 2px solid var(--border-gold);
 }
+
 .card-header h4 {
   margin: 0;
-  font-size: 1.2rem;
-  color: #3b2a1f;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .card-body {
-  padding: 1rem;
+  padding: 1.5rem;
 }
 
-/* Cartela 5x3 – Grid responsivo */
+/* ---------- CARTELA 5x3 (GRID FLEX) ---------- */
 #cartelaContainer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
 }
 
 .col-4 {
   flex: 1;
-  max-width: 32%;
+  min-width: 0; /* evita overflow */
 }
 
-/* Células da cartela */
+/* Células */
 .cartela-item {
-  background-color: #fff9ef;
-  border: 2px solid #d4b87a;
-  border-radius: 14px;
-  padding: 12px 4px;
+  background: #fffdf7;
+  border: 2px solid var(--border-gold);
+  border-radius: 18px;
+  padding: 14px 6px;
   text-align: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #2d1b0e;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-dark);
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: var(--transition);
   word-break: break-word;
-  min-height: 70px;
+  min-height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  line-height: 1.3;
 }
+
+.cartela-item:hover:not(.selecionado) {
+  background: #fff3df;
+  border-color: var(--primary);
+  transform: scale(0.98);
+}
+
 .cartela-item:active {
-  background-color: #ffe0a3;
-  transform: scale(0.97);
+  transform: scale(0.96);
+  background: #ffe6bf;
 }
 
-/* Célula selecionada */
+/* Selecionado (marcado) */
 .cartela-item.selecionado {
-  background-color: #ffd966 !important;
-  border: 3px solid #b27d0e;
-  color: #2c1b08;
-  font-weight: bold;
-  box-shadow: 0 0 0 2px #ffc107 inset;
+  background: linear-gradient(145deg, #ffde9e, #ffcd7e) !important;
+  border: 3px solid var(--primary-dark);
+  color: #1f1307;
+  box-shadow: 0 0 0 3px rgba(245, 176, 66, 0.4), inset 0 1px 2px rgba(0,0,0,0.05);
+  transform: scale(0.98);
 }
 
-/* Botão verificar bingo */
+/* ---------- BOTÃO VERIFICAR BINGO ---------- */
 #btnVerificarBingo {
-  background-color: #ffc107;
+  background: linear-gradient(95deg, var(--primary), #ffc857);
   border: none;
-  font-size: 1.2rem;
-  font-weight: bold;
-  padding: 12px 16px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  padding: 14px 20px;
   border-radius: 60px;
-  transition: all 0.2s;
-  margin-top: 15px;
-}
-#btnVerificarBingo:active {
-  transform: scale(0.97);
-  background-color: #e0a800;
+  color: #2c1b0a;
+  box-shadow: 0 6px 0 #b46f1a;
+  transition: 0.07s linear;
+  margin-top: 20px;
+  width: 100%;
+  letter-spacing: 1px;
 }
 
-/* --- Responsividade para telas pequenas (até 600px) --- */
+#btnVerificarBingo:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #b46f1a;
+}
+
+/* ---------- RESPONSIVIDADE PERFEITA ---------- */
 @media (max-width: 600px) {
-  .jogador-container {
-    padding: 0 6px;
+  body {
+    padding: 10px;
   }
-  .card-header h4 {
-    font-size: 1rem;
+  .card-body {
+    padding: 1rem;
   }
   .cartela-item {
     font-size: 0.75rem;
-    padding: 8px 2px;
-    min-height: 55px;
+    padding: 10px 4px;
+    min-height: 65px;
+    border-radius: 14px;
+  }
+  .row {
+    gap: 8px;
   }
   #btnVerificarBingo {
     font-size: 1rem;
-    padding: 10px 12px;
+    padding: 12px;
+  }
+  .card-header h4 {
+    font-size: 1.1rem;
   }
 }
 
-/* Telas muito pequenas (até 450px) */
-@media (max-width: 450px) {
+@media (max-width: 480px) {
+  .cartela-item {
+    font-size: 0.7rem;
+    padding: 6px 2px;
+    min-height: 55px;
+  }
   .row {
     gap: 6px;
   }
-  .cartela-item {
-    font-size: 0.65rem;
-    padding: 6px 1px;
-    min-height: 48px;
-    border-radius: 10px;
-  }
-  .card-body {
-    padding: 0.8rem;
+  .jogador-container h2 {
+    font-size: 1.5rem;
   }
 }
 
-/* Telas até 360px – ajuste ainda mais fino */
-@media (max-width: 360px) {
+@media (max-width: 380px) {
   .cartela-item {
     font-size: 0.6rem;
-    min-height: 44px;
+    padding: 5px 1px;
+    min-height: 48px;
+    border-radius: 12px;
   }
   .card-header h4 {
     font-size: 0.9rem;
   }
 }
 
-/* Remove hover em dispositivos touch */
+/* Touch – sem hover fantasma */
 @media (hover: none) {
   .cartela-item:hover {
-    background-color: #fff9ef;
+    background: #fffdf7;
+    transform: none;
   }
 }
 
-/* --- Tela de eliminado (já presente, mantida e melhorada) --- */
-.eliminado-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f5dc 0%, #e9e2c7 100%);
-  padding: 20px;
-}
-.eliminado-card {
-  background: white;
-  border-radius: 32px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  padding: 30px 20px;
-  text-align: center;
-  max-width: 400px;
-  width: 100%;
-  animation: fadeIn 0.5s ease;
-}
-.eliminado-card h3 {
-  font-size: 2rem;
-  color: #dc3545;
-  margin-bottom: 20px;
-}
-.eliminado-card p {
-  font-size: 1.1rem;
-  color: #555;
-  margin-bottom: 30px;
-}
-.eliminado-card .btn {
-  background-color: #5d3a1a;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 1.1rem;
-  border-radius: 50px;
-  width: auto;
-  display: inline-block;
-}
-.eliminado-card .btn:active {
-  background-color: #3b2a1f;
-  transform: scale(0.97);
-}
-@keyframes fadeIn {
+/* ---------- ANIMAÇÕES ---------- */
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ---------- TELA DE ELIMINADO (melhorada) ---------- */
+.eliminado-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #2c2b26, #1e1d1a);
+  padding: 20px;
+  animation: fadeInUp 0.4s ease;
+}
+
+.eliminado-card {
+  background: #fffef7;
+  border-radius: 48px;
+  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.3);
+  padding: 2rem 1.8rem;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid rgba(255,215,130,0.5);
+}
+
+.eliminado-card h3 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--danger);
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+}
+
+.eliminado-card p {
+  font-size: 1.2rem;
+  color: #4a3b2c;
+  margin-bottom: 2rem;
+}
+
+.eliminado-card .btn {
+  background: var(--primary-dark);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 50px;
+  transition: 0.15s;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.eliminado-card .btn:active {
+  transform: scale(0.96);
+  background: #9b5e1a;
 }

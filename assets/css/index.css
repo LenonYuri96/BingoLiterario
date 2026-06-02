@@ -1,38 +1,73 @@
-/* index.css - Tela inicial */
+/* ============================================================
+   TELA INICIAL - BINGO EDUCATIVO
+   ============================================================ */
+
 .index-body {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f5dc 0%, #e9e2c7 100%);
+  background: radial-gradient(circle at 30% 10%, #fff3e0, #f0e2cc);
+  padding: 20px;
 }
 
 .index-container {
   text-align: center;
-  padding: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  border-radius: 72px;
+  padding: 2.5rem 2rem;
+  max-width: 550px;
+  width: 100%;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.6s ease-out;
 }
 
 .index-container h1 {
-  font-size: 2.4rem;
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #d48a1a, #f5a623);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+}
+
+.index-container p {
+  font-size: 1rem;
+  color: #5a4a32;
   margin-bottom: 2rem;
-  color: #5d3a1a;
+}
+
+.index-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
 }
 
 .index-buttons .btn {
-  width: 80%;
   max-width: 280px;
-  font-size: 1.4rem;
-  padding: 15px;
-  margin: 12px auto;
-  display: block;
+  width: 85%;
+  font-size: 1.2rem;
+  padding: 14px;
+  transition: var(--transition-bounce);
 }
 
-@media (max-width: 480px) {
+.index-buttons .btn:hover {
+  transform: scale(1.02);
+}
+
+@media (max-width: 500px) {
+  .index-container {
+    padding: 2rem 1.5rem;
+    border-radius: 48px;
+  }
   .index-container h1 {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
   .index-buttons .btn {
-    width: 90%;
-    font-size: 1.2rem;
+    width: 100%;
+    font-size: 1rem;
   }
 }

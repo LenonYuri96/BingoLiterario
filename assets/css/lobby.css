@@ -1,145 +1,73 @@
-/* lobby.css - Lobby de espera responsivo */
+/* ============================================================
+   LOBBY - SALA DE ESPERA
+   ============================================================ */
 
 .lobby-container {
-  max-width: 550px;
-  margin: 20px auto;
-  padding: 0 12px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  animation: fadeInUp 0.4s ease;
 }
 
 .lobby-container h2 {
-  text-align: center;
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  color: #5d3a1a;
-}
-
-/* Cards */
-.card {
-  border: none;
-  border-radius: 28px;
-  background: white;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-
-.card-header {
-  padding: 1rem;
-  text-align: center;
-}
-
-.card-header h4 {
-  margin: 0;
-  font-size: 1.3rem;
-  font-weight: 600;
-}
-
-.card-body {
-  padding: 1.2rem;
+  margin-bottom: 1.2rem;
 }
 
 /* Inputs */
-input.form-control {
+.form-control {
   width: 100%;
-  padding: 14px 16px;
+  padding: 14px 18px;
   font-size: 1rem;
   border-radius: 60px;
-  border: 1px solid #ddd;
-  background-color: #fff;
-  transition: all 0.2s;
+  border: 2px solid #f0e0c4;
+  background: #fffef8;
+  transition: var(--transition);
   text-align: center;
+  font-weight: 500;
 }
 
-input.form-control:focus {
+.form-control:focus {
   outline: none;
-  border-color: #ffc107;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.2);
+  transform: scale(1.01);
 }
 
-/* Botões */
-.btn {
-  font-size: 1.1rem;
-  padding: 12px 16px;
-  border-radius: 60px;
-  font-weight: bold;
-  transition: transform 0.1s;
-}
-
-.btn:active {
-  transform: scale(0.97);
-}
-
-.btn-primary {
-  background-color: #007bff;
-  border: none;
-}
-.btn-success {
-  background-color: #28a745;
-  border: none;
-}
-
-/* Lista de jogadores */
+/* Lista de jogadores no lobby */
 #listaJogadores {
-  max-height: 280px;
+  max-height: 300px;
   overflow-y: auto;
-  margin: 0;
   padding: 0;
-  list-style: none;
 }
 
 #listaJogadores .list-group-item {
-  background: #fef7e6;
-  border: 1px solid #e2d0b6;
+  background: #fffaf0;
   border-radius: 50px;
-  margin-bottom: 8px;
-  padding: 10px 15px;
-  font-size: 1rem;
-  font-weight: 500;
   text-align: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #5a3e22;
+  margin-bottom: 8px;
 }
 
-/* Mensagem */
-#mensagem {
-  margin-top: 15px;
-  font-size: 0.9rem;
-  text-align: center;
-}
+/* Mensagens de alerta */
 .alert {
-  border-radius: 50px;
+  border-radius: 60px;
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  margin-top: 1rem;
+  text-align: center;
+  animation: fadeIn 0.3s;
 }
 
 /* Responsividade */
-@media (max-width: 600px) {
+@media (max-width: 550px) { 
   .lobby-container {
-    margin: 12px auto;
     padding: 0 8px;
   }
-  .lobby-container h2 {
-    font-size: 1.5rem;
-  }
-  .card-header h4 {
-    font-size: 1.1rem;
-  }
-  .btn {
-    font-size: 1rem;
-    padding: 10px 14px;
-  }
-  input.form-control {
+  .form-control {
     padding: 12px 14px;
-    font-size: 0.95rem;
-  }
-  #listaJogadores .list-group-item {
     font-size: 0.9rem;
-    padding: 8px 12px;
-  }
-}
-
-@media (max-width: 450px) {
-  .lobby-container h2 {
-    font-size: 1.3rem;
-  }
-  .card-body {
-    padding: 1rem;
   }
   .btn {
     font-size: 0.9rem;
